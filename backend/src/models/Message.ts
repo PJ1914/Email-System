@@ -84,12 +84,14 @@ export class MessageModel {
 
   async getSentByUser(uid: string, limit: number = 50): Promise<Message[]> {
     // All messages where the logged-in user was the sender (from == uid)
+    // Filter isSent client-side to avoid requiring a composite Firestore index
     const snapshot = await this.collection
       .where('from', '==', uid)
-      .where('isSent', '==', true)
       .get();
 
-    const messages = snapshot.docs.map((doc) => doc.data() as Message);
+    const messages = snapshot.docs
+      .map((doc) => doc.data() as Message)
+      .filter((m) => m.isSent);
     messages.sort((a, b) =>
       new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime()
     );
