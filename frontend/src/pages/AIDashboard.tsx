@@ -41,7 +41,6 @@ function calcAvgProcessingMs(messages: Message[]): number {
 }
 
 const AIDashboard: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [stats, setStats] = useState({
@@ -72,8 +71,6 @@ const AIDashboard: React.FC = () => {
       const inbox: Message[] = inboxRes.data.data.messages;
       const sent: Message[] = sentRes.data.data.messages;
       const all = [...inbox, ...sent];
-
-      setMessages(all);
 
       const processed = all.filter((m) => m.processedAt);
       const autoReplied = all.filter((m) => m.isAutoReplied);
