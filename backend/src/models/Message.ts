@@ -68,12 +68,14 @@ export class MessageModel {
     if (assignedEmails.length === 0) return [];
 
     // Query messages for user's assigned emails (Firestore 'in' supports up to 10 items)
+    // Filter isSent client-side to avoid requiring a composite Firestore index
     const snapshot = await this.collection
       .where('emailId', 'in', assignedEmails.slice(0, 10))
-      .where('isSent', '==', false)
       .get();
 
-    const messages = snapshot.docs.map((doc) => doc.data() as Message);
+    const messages = snapshot.docs
+      .map((doc) => doc.data() as Message)
+      .filter((m) => !m.isSent); // client-side filter to avoid composite index
     messages.sort((a, b) =>
       new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime()
     );
