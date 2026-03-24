@@ -31,11 +31,21 @@ function buildActivityData(messages: Message[]) {
   }));
 }
 
+function toMs(value: any): number {
+  if (!value) return 0;
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') return new Date(value).getTime();
+  if (value._seconds !== undefined) return value._seconds * 1000;
+  if (value.seconds !== undefined) return value.seconds * 1000;
+  return new Date(value).getTime();
+}
+
 function calcAvgProcessingMs(messages: Message[]): number {
   const processed = messages.filter((m) => m.processedAt && m.receivedAt);
   if (processed.length === 0) return 0;
   const total = processed.reduce((acc, m) => {
-    return acc + (new Date(m.processedAt!).getTime() - new Date(m.receivedAt).getTime());
+    const diff = toMs(m.processedAt) - toMs(m.receivedAt);
+    return acc + (isNaN(diff) ? 0 : diff);
   }, 0);
   return Math.round(total / processed.length / 100) / 10; // seconds, 1 dp
 }
@@ -228,7 +238,7 @@ const AIDashboard: React.FC = () => {
                 <Clock size={18} />
               </div>
             </div>
-            <p className="text-2xl font-semibold text-dark-text tracking-tight">{stats.avgProcessingTime}s</p>
+            <p className="text-2xl font-semibold text-dark-text tracking-tight">{isNaN(stats.avgProcessingTime) ? '0' : stats.avgProcessingTime}s</p>
           </div>
         </div>
 
