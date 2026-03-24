@@ -60,10 +60,16 @@ export class MessageModel {
     await this.collection.doc(id).delete();
   }
 
-  async getInboxByUser(uid: string, limit: number = 50): Promise<Message[]> {
+  async getInboxByUser(uid: string, limit: number = 50, isAdmin: boolean = false): Promise<Message[]> {
     // Get user's assigned email IDs first
     const userDoc = await db.collection('users').doc(uid).get();
-    const assignedEmails: string[] = userDoc.data()?.assignedEmails || [];
+    let assignedEmails: string[] = userDoc.data()?.assignedEmails || [];
+
+    // Admin fallback: if no emails assigned yet, show all emails' messages
+    if (assignedEmails.length === 0 && isAdmin) {
+      const allEmails = await db.collection('emails').where('isActive', '==', true).get();
+      assignedEmails = allEmails.docs.map((d) => d.id);
+    }
 
     if (assignedEmails.length === 0) return [];
 

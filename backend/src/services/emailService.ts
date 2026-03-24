@@ -43,6 +43,12 @@ export class EmailService {
     return email;
   }
 
+  async createAndAssign(address: string, provider: string, createdBy: string, isActive: boolean = true): Promise<Email> {
+    const email = await this.createEmail(address, provider, createdBy, isActive);
+    await UserModel.assignEmail(createdBy, email.id);
+    return email;
+  }
+
   async assignEmail(emailId: string, userIds: string[]): Promise<void> {
     const email = await EmailModel.findById(emailId);
     if (!email) {

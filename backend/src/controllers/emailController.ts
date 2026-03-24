@@ -7,7 +7,7 @@ export class EmailController {
   create = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { address, provider, isActive } = req.body;
 
-    const email = await emailService.createEmail(
+    const email = await emailService.createAndAssign(
       address,
       provider,
       req.user!.uid,

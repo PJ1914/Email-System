@@ -61,8 +61,8 @@ export class MessageService {
     return message;
   }
 
-  async getUserInbox(uid: string, limit: number = 50): Promise<Message[]> {
-    return await MessageModel.getInboxByUser(uid, limit);
+  async getUserInbox(uid: string, limit: number = 50, isAdmin: boolean = false): Promise<Message[]> {
+    return await MessageModel.getInboxByUser(uid, limit, isAdmin);
   }
 
   async getSent(uid: string, limit: number = 50): Promise<Message[]> {

@@ -40,7 +40,7 @@ export class MessageController {
   getUserInbox = asyncHandler(async (req: AuthRequest, res: Response) => {
     const limit = parseInt(req.query.limit as string) || 50;
 
-    const messages = await messageService.getUserInbox(req.user!.uid, limit);
+    const messages = await messageService.getUserInbox(req.user!.uid, limit, req.user!.isAdmin);
 
     res.status(200).json({
       status: 'success',
