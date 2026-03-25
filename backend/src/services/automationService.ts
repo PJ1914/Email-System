@@ -8,6 +8,25 @@ import EmailModel from '../models/Email';
 import logger from '../utils/logger';
 import { Message } from '../types';
 
+// Keyword → role routing table (Feature 10: Role-Based Email Routing)
+const INTENT_ROLE_MAP: Record<string, string> = {
+  complaint: 'support',
+  support: 'support',
+  refund: 'support',
+  billing: 'finance',
+  payment: 'finance',
+  invoice: 'finance',
+  subscription: 'finance',
+  sales: 'sales',
+  demo: 'sales',
+  pricing: 'sales',
+  purchase: 'sales',
+  technical: 'engineering',
+  bug: 'engineering',
+  error: 'engineering',
+  crash: 'engineering',
+};
+
 export class AutomationService {
   async processIncomingMessage(message: Message): Promise<void> {
     try {
@@ -41,7 +60,24 @@ export class AutomationService {
         tasks: aiResult.tasks,
         priority: aiResult.priority,
         deadline: aiResult.deadline,
+        sentiment: aiResult.sentiment,
       });
+
+      // Feature 10: Role-Based Email Routing
+      const intent = (aiResult.intent || '').toLowerCase();
+      const routeRole = Object.entries(INTENT_ROLE_MAP).find(([kw]) => intent.includes(kw))?.[1];
+      if (routeRole) {
+        const allUsers = await UserModel.getAll();
+        const roleUsers = allUsers.filter((u) => u.role === routeRole);
+        if (roleUsers.length > 0) {
+          const current = email.assignedTo || [];
+          const merged = [...new Set([...current, ...roleUsers.map((u) => u.uid)])];
+          await EmailModel.update(email.id, { assignedTo: merged });
+          logger.info('AutomationService: Routed to role team', {
+            messageId: message.id, role: routeRole, users: roleUsers.length,
+          });
+        }
+      }
 
       if (shouldAutoReply && aiResult.suggestedReply) {
         if (!tenantCreds) {

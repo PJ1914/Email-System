@@ -20,10 +20,18 @@ export const ENDPOINTS = {
     SEND: `${API_URL}/messages/send`,
     INBOX: `${API_URL}/messages/inbox`,
     SENT: `${API_URL}/messages/sent`,
+    STREAM: `${API_URL}/messages/stream`,
+    EXPORT: `${API_URL}/messages/export`,
+    BULK: `${API_URL}/messages/bulk`,
     EMAIL_INBOX: (emailId: string) => `${API_URL}/messages/${emailId}/inbox`,
     BY_ID: (id: string) => `${API_URL}/messages/${id}`,
+    MARK_READ: (id: string) => `${API_URL}/messages/${id}/read`,
+    REPLY: (id: string) => `${API_URL}/messages/${id}/reply`,
   },
-
+  REPLY_TEMPLATES: {
+    BASE: `${API_URL}/reply-templates`,
+    BY_ID: (id: string) => `${API_URL}/reply-templates/${id}`,
+  },
   SES_CONFIG: {
     BASE: `${API_URL}/ses-config`,
     BY_ID: (id: string) => `${API_URL}/ses-config/${id}`,
@@ -41,9 +49,22 @@ export const ENDPOINTS = {
   USERS: {
     UPDATE_ROLE: (uid: string) => `${API_URL}/auth/users/${uid}/role`,
   },
+  ATTACHMENTS: {
+    UPLOAD: `${API_URL}/attachments`,
+    BY_ID: (id: string) => `${API_URL}/attachments/${id}`,
+  },
 };
 
 export const STORAGE_KEYS = {
   TOKEN: 'auth_token',
   USER: 'user_data',
 };
+
+// SLA: 4-hour default for high/urgent, 24h for others (in ms)
+export const SLA_MS: Record<string, number> = {
+  urgent: 2 * 60 * 60 * 1000,
+  high: 4 * 60 * 60 * 1000,
+  medium: 12 * 60 * 60 * 1000,
+  low: 24 * 60 * 60 * 1000,
+};
+

@@ -97,6 +97,22 @@ Deadline (ISO format or "none"):`;
     return null;
   }
 
+  async detectSentiment(text: string): Promise<'positive' | 'negative' | 'neutral' | 'urgent' | 'frustrated'> {
+    const prompt = `Analyze the sentiment of the following email. Respond with ONLY ONE WORD from: positive, negative, neutral, urgent, frustrated.
+
+Email:
+${text}
+
+Sentiment (one word only):`;
+
+    const response = await this.generateWithRetry(prompt);
+    const s = response.trim().toLowerCase();
+    if (['positive', 'negative', 'neutral', 'urgent', 'frustrated'].includes(s)) {
+      return s as 'positive' | 'negative' | 'neutral' | 'urgent' | 'frustrated';
+    }
+    return 'neutral';
+  }
+
   async detectIntent(text: string): Promise<string> {
     const prompt = `Analyze the following email and identify the sender's primary intent. Choose ONE from: inquiry, request, complaint, feedback, notification, meeting, or other.
 

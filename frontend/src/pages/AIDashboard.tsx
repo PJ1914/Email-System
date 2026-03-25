@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Layout from '@/components/Layout';
 import api from '@/lib/api';
 import { ENDPOINTS } from '@/config/constants';
-import { Message } from '@/types';
+import { Message, Sentiment } from '@/types';
 import { Bot, TrendingUp, Clock, CheckCircle, BarChart3, RefreshCw } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import Skeleton from '@/components/Skeleton';
@@ -11,6 +11,21 @@ import { formatDistanceToNow } from 'date-fns';
 const POLL_INTERVAL = 30_000;
 
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+const SENTIMENT_COLORS: Record<string, string> = {
+  positive: '#22c55e',
+  negative: '#ef4444',
+  neutral: '#6b7280',
+  urgent: '#f97316',
+  frustrated: '#eab308',
+};
+
+function buildSentimentDist(messages: Message[]) {
+  const keys: Sentiment[] = ['positive', 'negative', 'neutral', 'urgent', 'frustrated'];
+  return keys
+    .map((s) => ({ name: s.charAt(0).toUpperCase() + s.slice(1), value: messages.filter((m) => m.sentiment === s).length, color: SENTIMENT_COLORS[s] }))
+    .filter((d) => d.value > 0);
+}
 
 function buildActivityData(messages: Message[]) {
   // Last 7 days rolling window
@@ -63,6 +78,7 @@ const AIDashboard: React.FC = () => {
   const [priorityData, setPriorityData] = useState<{ name: string; value: number; color: string }[]>([]);
   const [performance, setPerformance] = useState({ summary: 0, taskRate: 0, priorityDetection: 0 });
   const [recentReplies, setRecentReplies] = useState<Message[]>([]);
+  const [sentimentData, setSentimentData] = useState<{ name: string; value: number; color: string }[]>([]);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -111,6 +127,8 @@ const AIDashboard: React.FC = () => {
         taskRate:       Math.round((processed.filter((m) => (m.tasks?.length || 0) > 0).length / total) * 100),
         priorityDetection: Math.round((processed.filter((m) => m.priority).length / total) * 100),
       });
+
+      setSentimentData(buildSentimentDist(all));
 
       // Last 5 auto-replied messages
       setRecentReplies(
@@ -339,6 +357,44 @@ const AIDashboard: React.FC = () => {
                 <div className="bg-blue-500 h-full rounded transition-all duration-500" style={{ width: `${performance.priorityDetection}%` }}></div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Sentiment Distribution */}
+        <div className="bg-dark-surface border border-dark-border rounded overflow-hidden shadow-sm">
+          <div className="bg-dark-card px-5 py-3 border-b border-dark-border">
+            <h2 className="font-semibold text-dark-text">Sentiment Distribution</h2>
+          </div>
+          <div className="p-6">
+            {sentimentData.length === 0 ? (
+              <p className="text-center text-dark-textMuted text-sm py-8">No sentiment data yet — AI processing pending</p>
+            ) : (
+              <div className="flex flex-col md:flex-row items-center gap-8">
+                <ResponsiveContainer width="100%" height={240}>
+                  <PieChart>
+                    <Pie data={sentimentData} cx="50%" cy="50%" outerRadius={90} dataKey="value"
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      labelLine={{ stroke: '#444' }}
+                    >
+                      {sentimentData.map((entry) => (
+                        <Cell key={entry.name} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: '4px', fontSize: '12px' }} />
+                    <Legend wrapperStyle={{ fontSize: 12, color: '#888' }} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="grid grid-cols-2 gap-3 shrink-0">
+                  {sentimentData.map((s) => (
+                    <div key={s.name} className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full shrink-0" style={{ background: s.color }} />
+                      <span className="text-sm text-dark-text">{s.name}</span>
+                      <span className="text-xs text-dark-textMuted ml-auto">{s.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

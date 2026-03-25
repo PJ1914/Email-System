@@ -4,6 +4,7 @@ import priorityAgent from './agents/priorityAgent';
 import deadlineAgent from './agents/deadlineAgent';
 import intentAgent from './agents/intentAgent';
 import replyAgent from './agents/replyAgent';
+import sentimentAgent from './agents/sentimentAgent';
 import logger from '../../utils/logger';
 import { Message, AIAgentResult } from '../../types';
 
@@ -18,13 +19,14 @@ export class WorkflowEngine {
 
       logger.info('WorkflowEngine: Steps 1-5 running in parallel');
 
-      // Run all analysis agents concurrently — ~5x faster than sequential
-      const [summary, tasks, priority, deadline, intent] = await Promise.all([
+      // Run all analysis agents concurrently — ~6x faster than sequential
+      const [summary, tasks, priority, deadline, intent, sentiment] = await Promise.all([
         summarizerAgent.execute(messageText),
         taskExtractorAgent.execute(messageText, message.id),
         priorityAgent.execute(messageText),
         deadlineAgent.execute(messageText),
         intentAgent.execute(messageText),
+        sentimentAgent.execute(messageText),
       ]);
 
       logger.info('WorkflowEngine: Steps 1-5 complete', {
@@ -46,6 +48,7 @@ export class WorkflowEngine {
         priority,
         deadline: deadline || undefined,
         intent,
+        sentiment,
         suggestedReply,
       };
 

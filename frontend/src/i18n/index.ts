@@ -1,0 +1,188 @@
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+
+const resources = {
+  en: {
+    translation: {
+      // Navigation
+      dashboard: 'Dashboard',
+      inbox: 'Inbox',
+      sent: 'Sent',
+      compose: 'Compose',
+      aiDashboard: 'AI Dashboard',
+      settings: 'Settings',
+      users: 'Users',
+      roles: 'Roles',
+      emailManagement: 'Email Management',
+      sesConfiguration: 'SES Configuration',
+      analytics: 'Analytics',
+      templates: 'Templates',
+      // Inbox
+      searchPlaceholder: 'Search messages...',
+      selectAll: 'Select All',
+      bulkDelete: 'Delete Selected',
+      markRead: 'Mark Read',
+      exportCsv: 'Export CSV',
+      noMessages: 'No messages found',
+      loading: 'Loading...',
+      // Message actions
+      reply: 'Reply',
+      delete: 'Delete',
+      markAsRead: 'Mark as Read',
+      sending: 'Sending...',
+      sendReply: 'Send Reply',
+      cancel: 'Cancel',
+      // SLA
+      slaBreached: 'SLA BREACHED',
+      slaElapsed: '{{time}} elapsed',
+      // Sentiment
+      positive: 'Positive',
+      negative: 'Negative',
+      neutral: 'Neutral',
+      urgent: 'Urgent',
+      frustrated: 'Frustrated',
+      // Priority
+      priorityUrgent: 'Urgent',
+      priorityHigh: 'High',
+      priorityMedium: 'Medium',
+      priorityLow: 'Low',
+      // Templates
+      templatesTitle: 'Reply Templates',
+      newTemplate: 'New Template',
+      templateName: 'Template Name',
+      templateBody: 'Template Body',
+      templateCategory: 'Category',
+      saveTemplate: 'Save Template',
+      deleteTemplate: 'Delete Template',
+      globalTemplate: 'Global',
+      personalTemplate: 'Personal',
+      // Analytics
+      analyticsTitle: 'Email Analytics',
+      totalEmails: 'Total Emails',
+      responseRate: 'Response Rate',
+      avgResponseTime: 'Avg Response Time',
+      slaBreachRate: 'SLA Breach Rate',
+      sentimentDistribution: 'Sentiment Distribution',
+      emailVolume: 'Email Volume',
+      // Settings
+      language: 'Language',
+      notifications: 'Notifications',
+      pushNotifications: 'Push Notifications',
+      enablePushNotifications: 'Enable Push Notifications',
+      theme: 'Theme',
+      slaSettings: 'SLA Settings',
+      saveSettings: 'Save Settings',
+      // Auth
+      login: 'Login',
+      logout: 'Logout',
+      register: 'Register',
+      email: 'Email',
+      password: 'Password',
+      // Common
+      save: 'Save',
+      edit: 'Edit',
+      deleteItem: 'Delete',
+      confirm: 'Confirm',
+      back: 'Back',
+      close: 'Close',
+      error: 'Error',
+      success: 'Success',
+    },
+  },
+  hi: {
+    translation: {
+      // Navigation
+      dashboard: 'डैशबोर्ड',
+      inbox: 'इनबॉक्स',
+      sent: 'भेजे गए',
+      compose: 'नया ईमेल',
+      aiDashboard: 'AI डैशबोर्ड',
+      settings: 'सेटिंग्स',
+      users: 'उपयोगकर्ता',
+      roles: 'भूमिकाएं',
+      emailManagement: 'ईमेल प्रबंधन',
+      sesConfiguration: 'SES कॉन्फ़िगरेशन',
+      analytics: 'विश्लेषण',
+      templates: 'टेम्पलेट',
+      // Inbox
+      searchPlaceholder: 'संदेश खोजें...',
+      selectAll: 'सभी चुनें',
+      bulkDelete: 'चयनित हटाएं',
+      markRead: 'पढ़ा हुआ चिह्नित करें',
+      exportCsv: 'CSV निर्यात',
+      noMessages: 'कोई संदेश नहीं मिला',
+      loading: 'लोड हो रहा है...',
+      // Message actions
+      reply: 'जवाब दें',
+      delete: 'हटाएं',
+      markAsRead: 'पढ़ा हुआ चिह्नित करें',
+      sending: 'भेजा जा रहा है...',
+      sendReply: 'जवाब भेजें',
+      cancel: 'रद्द करें',
+      // SLA
+      slaBreached: 'SLA उल्लंघन',
+      slaElapsed: '{{time}} बीत गया',
+      // Sentiment
+      positive: 'सकारात्मक',
+      negative: 'नकारात्मक',
+      neutral: 'तटस्थ',
+      urgent: 'अत्यावश्यक',
+      frustrated: 'निराश',
+      // Priority
+      priorityUrgent: 'अत्यावश्यक',
+      priorityHigh: 'उच्च',
+      priorityMedium: 'मध्यम',
+      priorityLow: 'कम',
+      // Templates
+      templatesTitle: 'उत्तर टेम्पलेट',
+      newTemplate: 'नया टेम्पलेट',
+      templateName: 'टेम्पलेट नाम',
+      templateBody: 'टेम्पलेट सामग्री',
+      templateCategory: 'श्रेणी',
+      saveTemplate: 'टेम्पलेट सहेजें',
+      deleteTemplate: 'टेम्पलेट हटाएं',
+      globalTemplate: 'वैश्विक',
+      personalTemplate: 'व्यक्तिगत',
+      // Analytics
+      analyticsTitle: 'ईमेल विश्लेषण',
+      totalEmails: 'कुल ईमेल',
+      responseRate: 'प्रतिक्रिया दर',
+      avgResponseTime: 'औसत प्रतिक्रिया समय',
+      slaBreachRate: 'SLA उल्लंघन दर',
+      sentimentDistribution: 'भावना वितरण',
+      emailVolume: 'ईमेल मात्रा',
+      // Settings
+      language: 'भाषा',
+      notifications: 'सूचनाएं',
+      pushNotifications: 'पुश सूचनाएं',
+      enablePushNotifications: 'पुश सूचनाएं सक्षम करें',
+      theme: 'थीम',
+      slaSettings: 'SLA सेटिंग्स',
+      saveSettings: 'सेटिंग्स सहेजें',
+      // Auth
+      login: 'लॉगिन',
+      logout: 'लॉगआउट',
+      register: 'पंजीकरण',
+      email: 'ईमेल',
+      password: 'पासवर्ड',
+      // Common
+      save: 'सहेजें',
+      edit: 'संपादित करें',
+      deleteItem: 'हटाएं',
+      confirm: 'पुष्टि करें',
+      back: 'वापस',
+      close: 'बंद करें',
+      error: 'त्रुटि',
+      success: 'सफलता',
+    },
+  },
+};
+
+i18n.use(initReactI18next).init({
+  resources,
+  lng: localStorage.getItem('language') || 'en',
+  fallbackLng: 'en',
+  interpolation: { escapeValue: false },
+});
+
+export default i18n;

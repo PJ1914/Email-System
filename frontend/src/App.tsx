@@ -16,6 +16,8 @@ import EmailManagement from './pages/EmailManagement';
 import Users from './pages/Users';
 import Roles from './pages/Roles';
 import SESConfiguration from './pages/SESConfiguration';
+import Analytics from './pages/Analytics';
+import ReplyTemplates from './pages/ReplyTemplates';
 
 const App: React.FC = () => {
   return (
@@ -128,6 +130,24 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <SESConfiguration />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/analytics"
+            element={
+              <ProtectedRoute>
+                <Analytics />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/templates"
+            element={
+              <ProtectedRoute>
+                <ReplyTemplates />
               </ProtectedRoute>
             }
           />

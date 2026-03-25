@@ -37,6 +37,8 @@ export interface Email {
   updatedAt: Date;
 }
 
+export type Sentiment = 'positive' | 'negative' | 'neutral' | 'urgent' | 'frustrated';
+
 export interface Message {
   id: string;
   emailId: string;
@@ -45,14 +47,34 @@ export interface Message {
   subject: string;
   body: string;
   isSent: boolean;
+  isRead?: boolean;
   summary?: string;
   tasks?: Task[];
   priority?: Priority;
+  sentiment?: Sentiment;
   deadline?: Date;
   isAutoReplied: boolean;
   autoReply?: string;
+  threadId?: string;
+  inReplyTo?: string;
+  slaBreach?: boolean;
+  slaRequired?: number;
   receivedAt: Date;
   processedAt?: Date;
+  scheduledAt?: Date;
+  category?: string;
+}
+
+export interface ReplyTemplate {
+  id: string;
+  name: string;
+  subject?: string;
+  body: string;
+  category?: string;
+  createdBy: string;
+  isGlobal: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Task {

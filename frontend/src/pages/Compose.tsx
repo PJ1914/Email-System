@@ -208,6 +208,17 @@ const Compose: React.FC = () => {
 
     setLoading(true);
     try {
+      // Upload attachments first
+      const uploadedAttachmentIds: string[] = [];
+      for (const file of attachments) {
+        const fd = new FormData();
+        fd.append('file', file);
+        const res = await api.post(ENDPOINTS.ATTACHMENTS.UPLOAD, fd, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        uploadedAttachmentIds.push(res.data.data.id);
+      }
+
       await api.post(ENDPOINTS.MESSAGES.SEND, {
         emailId,
         to: to[0],          // primary recipient
@@ -217,6 +228,7 @@ const Compose: React.FC = () => {
         body: htmlBody,
         priority,
         scheduledAt: scheduleTime || undefined,
+        attachmentIds: uploadedAttachmentIds.length > 0 ? uploadedAttachmentIds : undefined,
       });
 
       toast.success(scheduleTime ? `Scheduled for ${new Date(scheduleTime).toLocaleString()}` : 'Message sent!');

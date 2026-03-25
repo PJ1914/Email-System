@@ -38,6 +38,15 @@ export interface Email {
   updatedAt: Date;
 }
 
+export type Sentiment = 'positive' | 'negative' | 'neutral' | 'urgent' | 'frustrated';
+
+export interface SLAStatus {
+  required: number;    // ms — required response time
+  elapsed: number;     // ms — time elapsed since received
+  breached: boolean;
+  percentage: number;  // 0–100
+}
+
 export interface Message {
   id: string;
   emailId: string;
@@ -49,11 +58,20 @@ export interface Message {
   tasks?: Task[];
   priority?: Priority;
   deadline?: Date;
+  sentiment?: Sentiment;
+  isRead?: boolean;
   isAutoReplied: boolean;
   isSent: boolean;      // true = outgoing, false = incoming
   autoReply?: string;
+  threadId?: string;
+  inReplyTo?: string;
+  slaBreach?: boolean;
+  slaRequired?: number; // ms
   receivedAt: Date;
   processedAt?: Date;
+  scheduledAt?: Date;
+  attachments?: Attachment[];
+  category?: string;
 }
 
 export interface Task {
@@ -80,6 +98,14 @@ export enum TaskStatus {
   CANCELLED = 'cancelled',
 }
 
+export interface Attachment {
+  filename: string;
+  contentType: string;
+  size: number;
+  url?: string;       // S3/Firebase Storage URL after upload
+  content?: string;   // base64 for small files
+}
+
 export interface AIAgentResult {
   summary?: string;
   tasks?: Task[];
@@ -87,6 +113,7 @@ export interface AIAgentResult {
   deadline?: Date;
   intent?: string;
   suggestedReply?: string;
+  sentiment?: Sentiment;
 }
 
 export type VerificationStatus = 'unverified' | 'pending' | 'verified' | 'failed';

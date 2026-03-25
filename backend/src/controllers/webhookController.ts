@@ -115,6 +115,13 @@ async function processInboundEmail(payload: any) {
       continue;
     }
 
+    // Compute a threadId from the normalized subject (strip Re:/Fwd: prefixes)
+    const normalizedSubject = subject
+      .replace(/^(re|fwd|fw|aw):\s*/gi, '')
+      .trim()
+      .toLowerCase();
+    const threadId = `${emailAccount.id}:${normalizedSubject}`;
+
     const savedMessage = await MessageModel.create({
       emailId: emailAccount.id,
       from: senderAddress,
@@ -123,6 +130,8 @@ async function processInboundEmail(payload: any) {
       body,
       isAutoReplied: false,
       isSent: false,
+      isRead: false,
+      threadId,
       receivedAt: new Date(timestamp),
     });
 

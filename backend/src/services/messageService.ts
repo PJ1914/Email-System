@@ -11,14 +11,15 @@ export class MessageService {
     to: string,
     subject: string,
     body: string,
-    from: string
+    from: string,
+    inReplyTo?: string,
+    threadId?: string
   ): Promise<Message> {
     const email = await EmailModel.findById(emailId);
     if (!email) {
       throw new AppError('Email not found', 404);
     }
 
-    // Resolve per-tenant SES credentials — required, no silent fallback to global
     const tenantCreds = await sesConfigService.resolveCredsForEmail(emailId);
     if (!tenantCreds) {
       throw new AppError(
@@ -35,6 +36,9 @@ export class MessageService {
       isHtml: true,
     }, tenantCreds);
 
+    // Derive threadId from subject if not provided
+    const derivedThreadId = threadId || `${emailId}:${subject.replace(/^(re|fwd|fw|aw):\s*/gi, '').trim().toLowerCase()}`;
+
     const message = await MessageModel.create({
       emailId,
       from,
@@ -43,6 +47,9 @@ export class MessageService {
       body,
       isAutoReplied: false,
       isSent: true,
+      isRead: true,
+      threadId: derivedThreadId,
+      inReplyTo,
       receivedAt: new Date(),
     });
 
@@ -81,9 +88,41 @@ export class MessageService {
     await MessageModel.delete(id);
   }
 
+  async markRead(id: string): Promise<void> {
+    await MessageModel.update(id, { isRead: true });
+  }
+
+  async bulkAction(ids: string[], action: 'delete' | 'mark_read'): Promise<void> {
+    await Promise.all(
+      ids.map((id) =>
+        action === 'delete'
+          ? MessageModel.delete(id)
+          : MessageModel.update(id, { isRead: true })
+      )
+    );
+  }
+
+  async replyToMessage(originalId: string, body: string, senderUid: string): Promise<Message> {
+    const original = await MessageModel.findById(originalId);
+    if (!original) {
+      throw new AppError('Original message not found', 404);
+    }
+
+    return await this.sendMessage(
+      original.emailId,
+      original.from,
+      `Re: ${original.subject}`,
+      body,
+      senderUid,
+      originalId,
+      original.threadId
+    );
+  }
+
   async getUnprocessedMessages(): Promise<Message[]> {
     return await MessageModel.getUnprocessed();
   }
 }
 
 export default new MessageService();
+

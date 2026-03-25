@@ -13,6 +13,8 @@ import {
   X,
   Cloud,
   Shield,
+  BarChart3,
+  Tag,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { UserRole } from '@/types';
@@ -30,6 +32,8 @@ const Sidebar: React.FC = () => {
     { icon: Send, label: 'Sent', path: '/sent' },
     { icon: Mail, label: 'Compose', path: '/compose' },
     { icon: Bot, label: 'AI Dashboard', path: '/ai-dashboard' },
+    { icon: BarChart3, label: 'Analytics', path: '/analytics' },
+    { icon: Tag, label: 'Templates', path: '/templates' },
   ];
 
   if (user?.role === UserRole.ADMIN) {

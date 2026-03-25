@@ -10,6 +10,8 @@ import messageRoutes from './routes/messageRoutes';
 import sesConfigRoutes from './routes/sesConfigRoutes';
 import roleRoutes from './routes/roleRoutes';
 import webhookRoutes from './routes/webhookRoutes';
+import replyTemplateRoutes from './routes/replyTemplateRoutes';
+import attachmentRoutes from './routes/attachmentRoutes';
 import RoleModel from './models/Role';
 
 const app: Application = express();
@@ -44,7 +46,9 @@ app.use('/api/emails', emailRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/ses-config', sesConfigRoutes);
 app.use('/api/roles', roleRoutes);
-app.use('/api/webhooks', webhookRoutes); // SES inbound email webhook (no auth)
+app.use('/api/webhooks', webhookRoutes);
+app.use('/api/reply-templates', replyTemplateRoutes);
+app.use('/api/attachments', attachmentRoutes);
 
 // Seed default roles (admin + user) on startup
 RoleModel.seedDefaults().catch((err) =>

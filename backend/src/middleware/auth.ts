@@ -21,12 +21,14 @@ export const authenticate = async (
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
+    // Allow token via query param for SSE (EventSource can't set headers)
+    const queryToken = typeof req.query?.token === 'string' ? req.query.token : undefined;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!authHeader?.startsWith('Bearer ') && !queryToken) {
       throw new AppError('No token provided', 401);
     }
 
-    const token = authHeader.split('Bearer ')[1];
+    const token = queryToken ?? authHeader!.split('Bearer ')[1];
     const decodedToken = await auth.verifyIdToken(token);
 
     const user = await UserModel.findByUid(decodedToken.uid);

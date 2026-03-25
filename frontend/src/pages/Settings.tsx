@@ -1,11 +1,18 @@
 import React from 'react';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/context/AuthContext';
-import { Settings as SettingsIcon, Bell, Shield, Zap } from 'lucide-react';
+import { Settings as SettingsIcon, Bell, Shield, Zap, Globe, BellRing } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 
 const Settings: React.FC = () => {
   const { user, updateAutoMode } = useAuth();
+  const { t, i18n } = useTranslation();
   const [autoMode, setAutoMode] = React.useState(user?.autoMode || false);
+  const [language, setLanguage] = React.useState(localStorage.getItem('language') || 'en');
+  const [pushEnabled, setPushEnabled] = React.useState(
+    localStorage.getItem('push_notifications') === 'true'
+  );
 
   const handleAutoModeToggle = async () => {
     try {
@@ -14,6 +21,31 @@ const Settings: React.FC = () => {
     } catch (error) {
       console.error('Failed to update auto mode:', error);
     }
+  };
+
+  const handleLanguageChange = (lng: string) => {
+    setLanguage(lng);
+    i18n.changeLanguage(lng);
+    localStorage.setItem('language', lng);
+    toast.success(lng === 'hi' ? 'भाषा बदली गई' : 'Language changed to English');
+  };
+
+  const handlePushToggle = async () => {
+    if (!pushEnabled) {
+      if (!('Notification' in window)) {
+        toast.error('Browser does not support notifications');
+        return;
+      }
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') {
+        toast.error('Notification permission denied');
+        return;
+      }
+    }
+    const next = !pushEnabled;
+    setPushEnabled(next);
+    localStorage.setItem('push_notifications', String(next));
+    toast.success(next ? 'Push notifications enabled' : 'Push notifications disabled');
   };
 
   return (
@@ -109,7 +141,7 @@ const Settings: React.FC = () => {
         <div className="bg-dark-surface border border-dark-border rounded overflow-hidden shadow-sm">
           <div className="bg-dark-card px-5 py-3 border-b border-dark-border flex items-center gap-2">
             <Bell size={18} className="text-dark-textMuted" />
-            <h2 className="font-semibold text-dark-text">Notifications</h2>
+            <h2 className="font-semibold text-dark-text">{t('notifications')}</h2>
           </div>
           <div className="p-5 space-y-3">
             <div className="flex items-center justify-between p-4 bg-dark-bg border border-dark-border rounded">
@@ -130,6 +162,49 @@ const Settings: React.FC = () => {
               <button className="relative inline-flex h-5 w-10 items-center rounded-full bg-peach-500 shrink-0 ml-4">
                 <span className="inline-block h-4 w-4 transform rounded-full bg-white translate-x-5" />
               </button>
+            </div>
+
+            <div className="flex items-center justify-between p-4 bg-dark-bg border border-dark-border rounded">
+              <div className="flex items-start gap-3">
+                <BellRing size={18} className="text-peach-400 mt-0.5 shrink-0" />
+                <div>
+                  <p className="font-medium text-dark-text text-sm">{t('pushNotifications')}</p>
+                  <p className="text-xs text-dark-textMuted mt-0.5">{t('enablePushNotifications')}</p>
+                </div>
+              </div>
+              <button
+                onClick={handlePushToggle}
+                className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors ml-4 shrink-0 ${pushEnabled ? 'bg-peach-500' : 'bg-dark-border'}`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${pushEnabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Language Settings */}
+        <div className="bg-dark-surface border border-dark-border rounded overflow-hidden shadow-sm">
+          <div className="bg-dark-card px-5 py-3 border-b border-dark-border flex items-center gap-2">
+            <Globe size={18} className="text-dark-textMuted" />
+            <h2 className="font-semibold text-dark-text">{t('language')}</h2>
+          </div>
+          <div className="p-5">
+            <p className="text-xs text-dark-textMuted mb-4">Choose the interface language. Content will update immediately.</p>
+            <div className="flex gap-3">
+              {[{ code: 'en', label: 'English', native: 'English' }, { code: 'hi', label: 'Hindi', native: 'हिंदी' }].map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => handleLanguageChange(lang.code)}
+                  className={`flex-1 px-4 py-3 rounded border text-sm font-medium transition-colors ${
+                    language === lang.code
+                      ? 'border-peach-500 bg-peach-500/10 text-peach-400'
+                      : 'border-dark-border text-dark-textMuted hover:border-dark-text hover:text-dark-text'
+                  }`}
+                >
+                  <span className="block">{lang.native}</span>
+                  <span className="text-xs opacity-60">{lang.label}</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
