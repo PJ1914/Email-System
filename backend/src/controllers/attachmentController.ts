@@ -1,15 +1,18 @@
 import { Response, NextFunction } from 'express';
 import multer from 'multer';
 import AttachmentModel from '../models/Attachment';
-import { AuthRequest } from '../middleware/auth';
+import { AuthRequest as BaseAuthRequest } from '../middleware/auth';
 import { AppError } from '../utils/errorHandler';
+
+/** Extend AuthRequest with multer's file property */
+type AuthRequest = BaseAuthRequest & { file?: Express.Multer.File };
 
 const MAX_SIZE = 500 * 1024; // 500 KB
 
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: MAX_SIZE },
-  fileFilter: (_req, file, cb) => {
+  fileFilter: (_req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     // Allow common document + image types
     const allowed = [
       'image/png', 'image/jpeg', 'image/gif', 'image/webp',
