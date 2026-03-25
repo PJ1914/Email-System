@@ -16,20 +16,22 @@ export class WorkflowEngine {
 
       const messageText = `Subject: ${message.subject}\n\nBody: ${message.body}`;
 
-      logger.info('WorkflowEngine: Step 1 - Summarizing');
-      const summary = await summarizerAgent.execute(messageText);
+      logger.info('WorkflowEngine: Steps 1-5 running in parallel');
 
-      logger.info('WorkflowEngine: Step 2 - Extracting tasks');
-      const tasks = await taskExtractorAgent.execute(messageText, message.id);
+      // Run all analysis agents concurrently — ~5x faster than sequential
+      const [summary, tasks, priority, deadline, intent] = await Promise.all([
+        summarizerAgent.execute(messageText),
+        taskExtractorAgent.execute(messageText, message.id),
+        priorityAgent.execute(messageText),
+        deadlineAgent.execute(messageText),
+        intentAgent.execute(messageText),
+      ]);
 
-      logger.info('WorkflowEngine: Step 3 - Detecting priority');
-      const priority = await priorityAgent.execute(messageText);
-
-      logger.info('WorkflowEngine: Step 4 - Detecting deadline');
-      const deadline = await deadlineAgent.execute(messageText);
-
-      logger.info('WorkflowEngine: Step 5 - Detecting intent');
-      const intent = await intentAgent.execute(messageText);
+      logger.info('WorkflowEngine: Steps 1-5 complete', {
+        tasksCount: tasks.length,
+        priority,
+        hasDeadline: !!deadline,
+      });
 
       let suggestedReply: string | undefined;
 

@@ -1,6 +1,7 @@
 import workflowEngine from './trae/workflowEngine';
 import messageService from './messageService';
 import sesService from './sesService';
+import sesConfigService from './sesConfigService';
 import UserModel from '../models/User';
 import MessageModel from '../models/Message';
 import EmailModel from '../models/Email';
@@ -30,6 +31,9 @@ export class AutomationService {
 
       const shouldAutoReply = autoUsers.length > 0;
 
+      // Resolve tenant SES credentials for this email account
+      const tenantCreds = await sesConfigService.resolveCredsForEmail(email.id);
+
       const aiResult = await workflowEngine.processMessage(message, shouldAutoReply);
 
       await MessageModel.markProcessed(message.id, {
@@ -40,25 +44,32 @@ export class AutomationService {
       });
 
       if (shouldAutoReply && aiResult.suggestedReply) {
-        logger.info('AutomationService: Sending auto-reply', {
-          messageId: message.id,
-        });
+        if (!tenantCreds) {
+          logger.warn('AutomationService: No SES config for email account, skipping auto-reply', {
+            emailId: email.id,
+          });
+        } else {
+          logger.info('AutomationService: Sending auto-reply', {
+            messageId: message.id,
+          });
 
-        await sesService.sendEmail({
-          to: message.from,
-          subject: `Re: ${message.subject}`,
-          body: aiResult.suggestedReply,
-          from: email.address,
-        });
+          await sesService.sendEmail({
+            to: message.from,
+            subject: `Re: ${message.subject}`,
+            body: aiResult.suggestedReply,
+            from: email.address,
+            isHtml: false,
+          }, tenantCreds);
 
-        await MessageModel.update(message.id, {
-          isAutoReplied: true,
-          autoReply: aiResult.suggestedReply,
-        });
+          await MessageModel.update(message.id, {
+            isAutoReplied: true,
+            autoReply: aiResult.suggestedReply,
+          });
 
-        logger.info('AutomationService: Auto-reply sent', {
-          messageId: message.id,
-        });
+          logger.info('AutomationService: Auto-reply sent', {
+            messageId: message.id,
+          });
+        }
       }
 
       logger.info('AutomationService: Message processing complete', {
